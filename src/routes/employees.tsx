@@ -79,65 +79,84 @@ function Employees() {
   });
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6">
+    <div className="space-y-4">
       <header>
-        <h1 className="font-display text-3xl font-bold">Employees</h1>
-        <p className="text-sm text-muted-foreground">
-          Disabled accounts keep their repair history but can't sign in.
-        </p>
+        <p className="eyebrow">Administration</p>
+        <h1 className="font-display text-xl font-bold tracking-tight">Employees</h1>
       </header>
 
-      <section className="panel overflow-hidden">
-        <ul className="divide-y divide-border">
-          {data?.map((u) => (
-            <li
-              key={u.id}
-              className="flex flex-wrap items-center justify-between gap-3 px-5 py-4"
-            >
-              <div>
-                <p className="font-medium">
-                  {u.displayName}
-                  {!u.active && (
-                    <span className="ml-2 rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
-                      Disabled
-                    </span>
-                  )}
-                </p>
-                <p className="text-sm text-muted-foreground">@{u.username}</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <Select
-                  value={u.role}
-                  onValueChange={(v) => update.mutate({ id: u.id, role: v as UserRole })}
-                >
-                  <SelectTrigger className="w-40">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="technician">Technician</SelectItem>
-                    <SelectItem value="admin">Admin</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Button
-                  variant="outline"
-                  onClick={() => update.mutate({ id: u.id, active: !u.active })}
-                >
-                  {u.active ? "Disable" : "Enable"}
-                </Button>
-              </div>
-            </li>
-          ))}
-        </ul>
+      <section className="portlet">
+        <div className="portlet-head">
+          <span>Staff accounts</span>
+          <span className="text-muted-foreground">
+            Disabled accounts keep their history but can't sign in.
+          </span>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="datagrid">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th className="hidden w-[10rem] sm:table-cell">Username</th>
+                <th className="w-[11rem]">Role</th>
+                <th className="w-[7.5rem] text-right">Account</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data?.map((u) => (
+                <tr key={u.id}>
+                  <td>
+                    <span className="font-medium">{u.displayName}</span>
+                    {!u.active && (
+                      <span className="ml-2 rounded-sm bg-muted px-1.5 py-0.5 text-[11px] uppercase tracking-wide text-muted-foreground">
+                        Disabled
+                      </span>
+                    )}
+                  </td>
+                  <td className="hidden text-muted-foreground sm:table-cell">
+                    @{u.username}
+                  </td>
+                  <td>
+                    <Select
+                      value={u.role}
+                      onValueChange={(v) =>
+                        update.mutate({ id: u.id, role: v as UserRole })
+                      }
+                    >
+                      <SelectTrigger className="h-7 w-full text-[13px]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="technician">Technician</SelectItem>
+                        <SelectItem value="admin">Admin</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </td>
+                  <td className="text-right">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-7"
+                      onClick={() => update.mutate({ id: u.id, active: !u.active })}
+                    >
+                      {u.active ? "Disable" : "Enable"}
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </section>
 
       <form
-        className="panel grid gap-4 p-6 sm:grid-cols-2"
+        className="portlet grid gap-4 p-5 sm:grid-cols-2"
         onSubmit={(e) => {
           e.preventDefault();
           create.mutate();
         }}
       >
-        <h2 className="font-display text-lg font-semibold sm:col-span-2">
+        <h2 className="font-display text-sm font-semibold sm:col-span-2">
           Add an employee
         </h2>
         <div className="space-y-1.5">

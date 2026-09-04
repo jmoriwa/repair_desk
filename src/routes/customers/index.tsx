@@ -38,52 +38,68 @@ function Customers() {
   });
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6">
+    <div className="space-y-4">
       <header>
-        <h1 className="font-display text-3xl font-bold">Customers</h1>
-        <p className="text-sm text-muted-foreground">
-          Search before creating a new record to avoid duplicates.
-        </p>
+        <p className="eyebrow">Directory</p>
+        <h1 className="font-display text-xl font-bold tracking-tight">Customers</h1>
       </header>
 
-      <div className="relative">
-        <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          className="pl-9"
-          placeholder="Name, phone or email"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          aria-label="Search customers"
-        />
-      </div>
-
-      <section className="panel overflow-hidden">
-        <ul className="divide-y divide-border">
-          {data?.map((c) => (
-            <li key={c.id}>
-              <Link
-                to="/customers/$customerId"
-                params={{ customerId: c.id }}
-                className="flex items-center justify-between gap-4 px-5 py-4 transition-colors hover:bg-muted/60"
-              >
-                <div className="min-w-0">
-                  <p className="font-medium">
-                    {c.firstName} {c.lastName}
-                  </p>
-                  <p className="truncate text-sm text-muted-foreground">
-                    {c.phone}
-                    {c.email ? ` · ${c.email}` : ""}
-                  </p>
-                </div>
-              </Link>
-            </li>
-          ))}
-          {data?.length === 0 && (
-            <li className="px-5 py-12 text-center text-sm text-muted-foreground">
-              No customers match that search.
-            </li>
-          )}
-        </ul>
+      <section className="portlet">
+        <div className="portlet-head">
+          <span>Customer records</span>
+          <span className="text-muted-foreground">
+            <span className="numeral">{data?.length ?? 0}</span> records
+          </span>
+        </div>
+        <div className="toolbar">
+          <div className="relative ml-auto w-full max-w-sm">
+            <Search className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              className="h-8 pl-8 text-[13px]"
+              placeholder="Name, phone or email"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              aria-label="Search customers"
+            />
+          </div>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="datagrid">
+            <thead>
+              <tr>
+                <th>Customer</th>
+                <th className="w-[9rem]">Phone</th>
+                <th className="hidden w-[16rem] md:table-cell">Email</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data?.map((c) => (
+                <tr key={c.id}>
+                  <td>
+                    <Link
+                      to="/customers/$customerId"
+                      params={{ customerId: c.id }}
+                      className="font-medium text-primary hover:underline"
+                    >
+                      {c.firstName} {c.lastName}
+                    </Link>
+                  </td>
+                  <td className="numeral text-muted-foreground">{c.phone}</td>
+                  <td className="hidden text-muted-foreground md:table-cell">
+                    {c.email ?? "—"}
+                  </td>
+                </tr>
+              ))}
+              {data?.length === 0 && (
+                <tr>
+                  <td colSpan={3} className="py-10 text-center text-muted-foreground">
+                    No customers match that search.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </section>
     </div>
   );

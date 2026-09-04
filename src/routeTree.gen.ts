@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as TrackRouteImport } from './routes/track'
 import { Route as RepairsIndexRouteImport } from './routes/repairs/index'
+import { Route as RepairsRepairIdRouteImport } from './routes/repairs/$repairId'
 import { Route as RepairsNewRouteImport } from './routes/repairs/new'
 
 const IndexRoute = IndexRouteImport.update({
@@ -35,6 +36,11 @@ const RepairsIndexRoute = RepairsIndexRouteImport.update({
   path: '/repairs/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RepairsRepairIdRoute = RepairsRepairIdRouteImport.update({
+  id: '/repairs/$repairId',
+  path: '/repairs/$repairId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RepairsNewRoute = RepairsNewRouteImport.update({
   id: '/repairs/new',
   path: '/repairs/new',
@@ -45,6 +51,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/track': typeof TrackRoute
+  '/repairs/$repairId': typeof RepairsRepairIdRoute
   '/repairs/new': typeof RepairsNewRoute
   '/repairs/': typeof RepairsIndexRoute
 }
@@ -52,6 +59,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/track': typeof TrackRoute
+  '/repairs/$repairId': typeof RepairsRepairIdRoute
   '/repairs/new': typeof RepairsNewRoute
   '/repairs': typeof RepairsIndexRoute
 }
@@ -60,21 +68,42 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/track': typeof TrackRoute
+  '/repairs/$repairId': typeof RepairsRepairIdRoute
   '/repairs/new': typeof RepairsNewRoute
   '/repairs/': typeof RepairsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/track' | '/repairs/new' | '/repairs/'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/track'
+    | '/repairs/$repairId'
+    | '/repairs/new'
+    | '/repairs/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/track' | '/repairs/new' | '/repairs'
-  id: '__root__' | '/' | '/login' | '/track' | '/repairs/new' | '/repairs/'
+  to:
+    | '/'
+    | '/login'
+    | '/track'
+    | '/repairs/$repairId'
+    | '/repairs/new'
+    | '/repairs'
+  id:
+    | '__root__'
+    | '/'
+    | '/login'
+    | '/track'
+    | '/repairs/$repairId'
+    | '/repairs/new'
+    | '/repairs/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LoginRoute: typeof LoginRoute
   TrackRoute: typeof TrackRoute
+  RepairsRepairIdRoute: typeof RepairsRepairIdRoute
   RepairsNewRoute: typeof RepairsNewRoute
   RepairsIndexRoute: typeof RepairsIndexRoute
 }
@@ -109,6 +138,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RepairsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/repairs/$repairId': {
+      id: '/repairs/$repairId'
+      path: '/repairs/$repairId'
+      fullPath: '/repairs/$repairId'
+      preLoaderRoute: typeof RepairsRepairIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/repairs/new': {
       id: '/repairs/new'
       path: '/repairs/new'
@@ -123,6 +159,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LoginRoute: LoginRoute,
   TrackRoute: TrackRoute,
+  RepairsRepairIdRoute: RepairsRepairIdRoute,
   RepairsNewRoute: RepairsNewRoute,
   RepairsIndexRoute: RepairsIndexRoute,
 }

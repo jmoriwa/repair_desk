@@ -42,7 +42,7 @@ export const Route = createFileRoute("/employees")({
 
 function Employees() {
   const queryClient = useQueryClient();
-  const { data } = useQuery({ queryKey: ["employees"], queryFn: () => api.listUsers() });
+  const { data } = useQuery({ queryKey: ["employees"], queryFn: () => api.listEmployees() });
   const [form, setForm] = useState({
     username: "",
     displayName: "",
@@ -55,7 +55,7 @@ function Employees() {
   const refresh = () => queryClient.invalidateQueries();
 
   const create = useMutation({
-    mutationFn: () => api.createUser(form),
+    mutationFn: () => api.createEmployee(form),
     onSuccess: () => {
       setForm({ username: "", displayName: "", role: "technician", password: "" });
       refresh();
@@ -65,8 +65,12 @@ function Employees() {
   });
 
   const update = useMutation({
-    mutationFn: (input: { id: string; role?: UserRole; active?: boolean }) =>
-      api.updateUser(input.id, { role: input.role, active: input.active }),
+    mutationFn: async (input: { id: string; role?: UserRole; active?: boolean }) => {
+      if (input.role) await api.updateEmployee(input.id, { role: input.role });
+      if (input.active !== undefined)
+        return api.setEmployeeActive(input.id, input.active);
+      return api.getCurrentUser();
+    },
     onSuccess: () => {
       refresh();
       toast.success("Employee updated");

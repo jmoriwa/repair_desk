@@ -23,8 +23,8 @@ export interface Customer {
   firstName: string;
   lastName: string;
   phone: string;
-  email?: string;
-  notes?: string;
+  email?: string | undefined;
+  notes?: string | undefined;
   createdAt: string;
   updatedAt: string;
 }
@@ -49,8 +49,8 @@ export interface Device {
   deviceType: DeviceType;
   manufacturer: string;
   model: string;
-  serialNumber?: string;
-  identifyingNotes?: string;
+  serialNumber?: string | undefined;
+  identifyingNotes?: string | undefined;
   createdAt: string;
   updatedAt: string;
 }
@@ -77,14 +77,14 @@ export interface Repair {
   ticketNumber: string;
   customerId: string;
   deviceId: string;
-  assignedTechnicianId?: string;
+  assignedTechnicianId?: string | undefined;
   createdById: string;
   reportedProblem: string;
   priority: Priority;
   status: RepairStatus;
-  estimatedCompletion?: string;
-  completedAt?: string;
-  customerUpdate?: string;
+  estimatedCompletion?: string | undefined;
+  completedAt?: string | undefined;
+  customerUpdate?: string | undefined;
   trackingCode: string;
   createdAt: string;
   updatedAt: string;
@@ -102,8 +102,8 @@ export interface IntakeRecord {
   missingComponents: boolean;
   chargerReceived: boolean;
   caseReceived: boolean;
-  otherAccessories?: string;
-  conditionNotes?: string;
+  otherAccessories?: string | undefined;
+  conditionNotes?: string | undefined;
   createdAt: string;
 }
 
@@ -113,7 +113,7 @@ export interface Diagnosis {
   technicianId: string;
   description: string;
   recommendedRepair: string;
-  estimatedCost?: number;
+  estimatedCost?: number | undefined;
   createdAt: string;
   updatedAt: string;
 }
@@ -134,10 +134,10 @@ export interface RepairPart {
   repairId: string;
   recordedById: string;
   name: string;
-  partNumber?: string;
+  partNumber?: string | undefined;
   quantity: number;
-  unitCost?: number;
-  notes?: string;
+  unitCost?: number | undefined;
+  notes?: string | undefined;
   createdAt: string;
 }
 
@@ -188,9 +188,9 @@ export interface RepairDetail {
   repair: Repair;
   customer: Customer;
   device: Device;
-  technician?: User;
-  createdBy?: User;
-  intake?: IntakeRecord;
+  technician?: User | undefined;
+  createdBy?: User | undefined;
+  intake?: IntakeRecord | undefined;
   diagnoses: Diagnosis[];
   notes: RepairNote[];
   parts: RepairPart[];
@@ -202,7 +202,7 @@ export interface RepairSummary {
   repair: Repair;
   customer: Customer;
   device: Device;
-  technician?: User;
+  technician?: User | undefined;
 }
 
 export interface DashboardSummary {
@@ -221,19 +221,19 @@ export interface PublicRepairStatus {
   status: RepairStatus;
   deviceLabel: string;
   receivedAt: string;
-  estimatedCompletion?: string;
-  completedAt?: string;
-  customerUpdate?: string;
+  estimatedCompletion?: string | undefined;
+  completedAt?: string | undefined;
+  customerUpdate?: string | undefined;
   customerNotes: { content: string; createdAt: string }[];
 }
 
 export interface RepairFilters {
-  query?: string;
-  status?: RepairStatus | "all" | "open";
-  technicianId?: string;
-  priority?: Priority;
-  customerId?: string;
-  deviceId?: string;
+  query?: string | undefined;
+  status?: RepairStatus | "all" | "open" | undefined;
+  technicianId?: string | undefined;
+  priority?: Priority | undefined;
+  customerId?: string | undefined;
+  deviceId?: string | undefined;
 }
 
 /** Errors thrown by the services layer carry a stable code the UI can branch on. */

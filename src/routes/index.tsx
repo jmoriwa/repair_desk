@@ -1,8 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import {
-  ArrowUpRight,
+  BarChart3,
   ClipboardList,
+  ExternalLink,
+  ListChecks,
   PackageCheck,
   Plus,
   Timer,
@@ -10,7 +12,8 @@ import {
 } from "lucide-react";
 import { RequireAuth } from "@/components/require-auth";
 import { PriorityBadge, StatusBadge, STATUS_RAIL } from "@/components/status-badge";
-import { DeviceTile } from "@/components/device-icon";
+import { DeviceIcon } from "@/components/device-icon";
+import { initials } from "@/components/app-shell";
 import { api, STATUS_LABELS } from "@/services";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
@@ -39,13 +42,6 @@ export const Route = createFileRoute("/")({
   ),
 });
 
-function greeting() {
-  const h = new Date().getHours();
-  if (h < 12) return "Good morning";
-  if (h < 18) return "Good afternoon";
-  return "Good evening";
-}
-
 function Dashboard() {
   const { user } = useAuth();
   const { data } = useQuery({
@@ -70,7 +66,7 @@ function Dashboard() {
       label: "Waiting",
       value: data?.waiting,
       icon: Timer,
-      tone: "text-warning-foreground bg-warning/25",
+      tone: "text-warning-foreground bg-warning/20",
     },
     {
       label: "Unassigned",
@@ -83,100 +79,145 @@ function Dashboard() {
   const max = Math.max(1, ...(data?.byStatus.map((r) => r.count) ?? [1]));
 
   return (
-    <div className="mx-auto max-w-6xl space-y-8">
-      <header className="flex flex-wrap items-end justify-between gap-5">
-        <div>
-          <p className="eyebrow">{greeting()}</p>
-          <h1 className="mt-1.5 font-display text-4xl font-bold">
-            {user?.displayName}
+    <div className="space-y-4">
+      <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+        <div className="min-w-0">
+          <p className="eyebrow">Workspace</p>
+          <h1 className="truncate font-display text-xl font-semibold">
+            Desktop — {user?.displayName}
           </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Here's what the shop is holding right now.
-          </p>
         </div>
-        <Button asChild size="lg">
+        <Button asChild size="sm" className="h-8">
           <Link to="/repairs/new">
-            <Plus className="size-4" /> New repair ticket
+            <Plus className="size-3.5" /> New ticket
           </Link>
         </Button>
       </header>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {stats.map((s) => (
-          <div key={s.label} className="panel-raised lift-hover p-5">
-            <div className="flex items-start justify-between">
-              <p className="text-sm font-medium text-muted-foreground">{s.label}</p>
-              <span
-                className={`flex size-9 items-center justify-center rounded-xl ${s.tone}`}
-              >
-                <s.icon className="size-4" />
-              </span>
+          <div key={s.label} className="panel flex items-center gap-3 px-3.5 py-3">
+            <span
+              className={`flex size-9 shrink-0 items-center justify-center rounded-sm ${s.tone}`}
+            >
+              <s.icon className="size-4" />
+            </span>
+            <div className="min-w-0">
+              <p className="truncate text-xs font-medium text-muted-foreground">
+                {s.label}
+              </p>
+              <p className="numeral text-2xl font-semibold leading-tight">
+                {s.value ?? "—"}
+              </p>
             </div>
-            <p className="numeral mt-4 text-4xl font-bold">{s.value ?? "—"}</p>
           </div>
         ))}
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[1.6fr_1fr]">
-        <section className="panel-raised overflow-hidden">
-          <div className="flex items-center justify-between border-b border-border px-5 py-4">
-            <h2 className="font-display text-base font-semibold">
-              Recent activity on the bench
-            </h2>
+      <div className="grid gap-4 xl:grid-cols-[1.75fr_1fr]">
+        <section className="portlet">
+          <div className="portlet-head">
+            <ListChecks className="size-3.5 text-muted-foreground" />
+            <span>Active work orders</span>
             <Link
               to="/repairs"
-              className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
+              className="ml-auto inline-flex items-center gap-1 text-[11px] font-medium text-primary hover:underline"
             >
-              View queue <ArrowUpRight className="size-3.5" />
+              Open queue <ExternalLink className="size-3" />
             </Link>
           </div>
-          <ul className="divide-y divide-border">
-            {data?.recent.map(({ repair, customer, device, technician }) => (
-              <li key={repair.id}>
-                <Link
-                  to="/repairs/$repairId"
-                  params={{ repairId: repair.id }}
-                  className="rail group flex items-center gap-4 py-4 pl-5 pr-4 transition-colors hover:bg-surface"
-                  style={{ "--rail": STATUS_RAIL[repair.status] } as React.CSSProperties}
-                >
-                  <DeviceTile type={device.deviceType} className="size-10" />
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="ticket-no text-xs text-muted-foreground">
+          <div className="overflow-x-auto">
+            <table className="datagrid">
+              <thead>
+                <tr>
+                  <th className="w-[6.5rem]">Ticket</th>
+                  <th className="w-[4.5rem]">Priority</th>
+                  <th className="w-[13rem]">Device</th>
+                  <th className="hidden w-[10rem] sm:table-cell">Customer</th>
+                  <th className="hidden w-[9.5rem] md:table-cell">Assigned to</th>
+                  <th className="w-[9rem]">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data?.recent.map(({ repair, customer, device, technician }) => (
+                  <tr key={repair.id}>
+                    <td
+                      className="rail"
+                      style={
+                        { "--rail": STATUS_RAIL[repair.status] } as React.CSSProperties
+                      }
+                    >
+                      <Link
+                        to="/repairs/$repairId"
+                        params={{ repairId: repair.id }}
+                        className="ticket-no text-[12.5px] text-primary hover:underline"
+                      >
                         {repair.ticketNumber}
-                      </span>
+                      </Link>
+                    </td>
+                    <td>
                       <PriorityBadge priority={repair.priority} />
-                    </div>
-                    <p className="mt-1 truncate font-medium">
-                      {device.manufacturer} {device.model}
-                    </p>
-                    <p className="truncate text-sm text-muted-foreground">
-                      {customer.firstName} {customer.lastName} ·{" "}
-                      {technician?.displayName ?? "Unassigned"}
-                    </p>
-                  </div>
-                  <StatusBadge status={repair.status} />
-                </Link>
-              </li>
-            ))}
-            {!data && <li className="px-5 py-8 text-sm text-muted-foreground">Loading…</li>}
-          </ul>
+                    </td>
+                    <td>
+                      <span className="flex items-center gap-2">
+                        <DeviceIcon
+                          type={device.deviceType}
+                          className="shrink-0 text-muted-foreground"
+                        />
+                        <span className="block truncate font-medium">
+                          {device.manufacturer} {device.model}
+                        </span>
+                      </span>
+                    </td>
+                    <td className="hidden whitespace-nowrap sm:table-cell">
+                      {customer.firstName} {customer.lastName}
+                    </td>
+                    <td className="hidden md:table-cell">
+                      {technician ? (
+                        <span className="flex items-center gap-1.5 whitespace-nowrap">
+                          <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-secondary text-[9px] font-semibold text-secondary-foreground">
+                            {initials(technician.displayName)}
+                          </span>
+                          <span className="truncate">{technician.displayName}</span>
+                        </span>
+                      ) : (
+                        <span className="text-muted-foreground">Unassigned</span>
+                      )}
+                    </td>
+                    <td>
+                      <StatusBadge status={repair.status} />
+                    </td>
+                  </tr>
+                ))}
+                {!data && (
+                  <tr>
+                    <td colSpan={6} className="py-8 text-center text-muted-foreground">
+                      Loading…
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </section>
 
-        <section className="panel-raised p-5">
-          <h2 className="font-display text-base font-semibold">Workload by stage</h2>
-          <ul className="mt-5 space-y-3.5">
+        <section className="portlet">
+          <div className="portlet-head">
+            <BarChart3 className="size-3.5 text-muted-foreground" />
+            <span>Work orders by stage</span>
+          </div>
+          <ul className="divide-y divide-border">
             {data?.byStatus.map((row) => (
-              <li key={row.status}>
-                <div className="flex items-center justify-between text-sm">
+              <li key={row.status} className="px-3 py-2.5">
+                <div className="flex items-center justify-between text-[12.5px]">
                   <span className="text-muted-foreground">
                     {STATUS_LABELS[row.status]}
                   </span>
                   <span className="numeral font-semibold">{row.count}</span>
                 </div>
-                <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-surface-2">
+                <div className="mt-1.5 h-1.5 overflow-hidden rounded-sm bg-surface-2">
                   <div
-                    className="h-full rounded-full transition-[width] duration-500"
+                    className="h-full transition-[width] duration-500"
                     style={{
                       width: `${(row.count / max) * 100}%`,
                       background: STATUS_RAIL[row.status],
@@ -185,6 +226,9 @@ function Dashboard() {
                 </div>
               </li>
             ))}
+            {!data && (
+              <li className="px-3 py-8 text-center text-muted-foreground">Loading…</li>
+            )}
           </ul>
         </section>
       </div>

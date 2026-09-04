@@ -39,7 +39,14 @@ function CustomerPage() {
   const queryClient = useQueryClient();
   const { data } = useQuery({
     queryKey: ["customer", customerId],
-    queryFn: () => api.getCustomer(customerId),
+    queryFn: async () => {
+      const [customer, devices, repairs] = await Promise.all([
+        api.getCustomer(customerId),
+        api.listDevices(customerId),
+        api.listRepairs({ customerId }),
+      ]);
+      return { customer, devices, repairs };
+    },
   });
   const [edit, setEdit] = useState<null | {
     firstName: string;

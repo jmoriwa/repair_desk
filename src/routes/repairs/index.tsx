@@ -1,10 +1,17 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { ChevronRight, Inbox, Plus, Search, SlidersHorizontal } from "lucide-react";
+import {
+  Download,
+  Filter,
+  Inbox,
+  Plus,
+  RefreshCw,
+  Search,
+} from "lucide-react";
 import { RequireAuth } from "@/components/require-auth";
 import { PriorityBadge, StatusBadge, STATUS_RAIL } from "@/components/status-badge";
-import { DeviceTile } from "@/components/device-icon";
+import { DeviceIcon } from "@/components/device-icon";
 import { initials } from "@/components/app-shell";
 import { api, REPAIR_STATUSES, STATUS_LABELS } from "@/services";
 import type { RepairStatus } from "@/services";
@@ -37,21 +44,26 @@ export const Route = createFileRoute("/repairs/")({
   ),
 });
 
-function daysOnBench(createdAt: string) {
-  const ms = Date.now() - new Date(createdAt).getTime();
-  const days = Math.floor(ms / 86_400_000);
-  if (days <= 0) return "Today";
-  if (days === 1) return "1 day";
-  return `${days} days`;
+function age(createdAt: string) {
+  const days = Math.floor((Date.now() - new Date(createdAt).getTime()) / 86_400_000);
+  return days <= 0 ? "Today" : `${days}d`;
+}
+
+function shortDate(iso: string) {
+  return new Date(iso).toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+  });
 }
 
 function RepairQueue() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<RepairStatus | "all" | "open">("open");
   const [mineOnly, setMineOnly] = useState(false);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isFetching, refetch } = useQuery({
     queryKey: ["repairs", query, status, mineOnly, user?.id],
     queryFn: () =>
       api.listRepairs({
@@ -61,156 +73,217 @@ function RepairQueue() {
       }),
   });
 
-  const urgentCount =
+  const urgent =
     data?.filter((r) => r.repair.priority === "urgent" || r.repair.priority === "high")
       .length ?? 0;
 
   return (
-    <div className="mx-auto max-w-6xl space-y-7">
-      <header className="flex flex-wrap items-end justify-between gap-5">
-        <div>
-          <p className="eyebrow">On the bench</p>
-          <h1 className="mt-1.5 font-display text-4xl font-bold">Repair queue</h1>
-          <p className="mt-2 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-sm text-muted-foreground">
-            <span>
-              <span className="numeral font-semibold text-foreground">
-                {data?.length ?? "—"}
-              </span>{" "}
-              matching {data?.length === 1 ? "repair" : "repairs"}
-            </span>
-            {urgentCount > 0 && (
-              <>
-                <span className="text-border">•</span>
-                <span className="font-medium text-destructive">
-                  {urgentCount} needing attention
-                </span>
-              </>
-            )}
-          </p>
+    <div className="space-y-4">
+      <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+        <div className="min-w-0">
+          <p className="eyebrow">Service management</p>
+          <h1 className="truncate font-display text-xl font-semibold">Repair queue</h1>
         </div>
-        <Button asChild size="lg" className="shadow-[var(--shadow-panel)]">
+        <Button asChild size="sm" className="h-8">
           <Link to="/repairs/new">
-            <Plus className="size-4" /> New repair ticket
+            <Plus className="size-3.5" /> New ticket
           </Link>
         </Button>
       </header>
 
-      <div className="panel-raised space-y-4 p-4 sm:p-5">
-        <div className="relative">
-          <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            className="h-11 rounded-xl bg-surface pl-10 text-base shadow-none"
-            placeholder="Ticket number, customer, phone, device or problem"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            aria-label="Search repairs"
-          />
+      <section className="portlet">
+        <div className="portlet-head">
+          <Filter className="size-3.5 text-muted-foreground" />
+          <span>Ticket list</span>
+          <span className="ml-auto flex items-center gap-3 text-[11px] font-normal text-muted-foreground">
+            <span>
+              <span className="numeral font-semibold text-foreground">
+                {data?.length ?? 0}
+              </span>{" "}
+              records
+            </span>
+            {urgent > 0 && (
+              <span className="font-medium text-destructive">{urgent} high / urgent</span>
+            )}
+          </span>
         </div>
 
-        <div className="hairline-x" />
+        <div className="toolbar">
+          <button
+            type="button"
+            className="toolbar-btn"
+            onClick={() => refetch()}
+            disabled={isFetching}
+          >
+            <RefreshCw className={cn("size-3.5", isFetching && "animate-spin")} />
+            Refresh
+          </button>
+          <button type="button" className="toolbar-btn">
+            <Download className="size-3.5" /> Export
+          </button>
+          <span className="mx-1 h-4 w-px bg-border" />
+          <button
+            type="button"
+            onClick={() => setMineOnly((v) => !v)}
+            className={cn(
+              "toolbar-btn",
+              mineOnly && "bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary",
+            )}
+          >
+            My assignments
+          </button>
+          <div className="relative ml-auto w-full sm:w-72">
+            <Search className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              className="h-7 rounded-sm bg-card pl-8 text-xs shadow-none"
+              placeholder="Search ticket, customer, device, problem"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              aria-label="Search repairs"
+            />
+          </div>
+        </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          <SlidersHorizontal className="mr-0.5 size-3.5 text-muted-foreground" />
+        <div className="flex flex-wrap items-center gap-1 border-b border-border bg-card px-2 py-1.5">
           {(["open", "all", ...REPAIR_STATUSES] as const).map((s) => (
             <button
               key={s}
               type="button"
               onClick={() => setStatus(s)}
               className={cn(
-                "rounded-full border px-3 py-1.5 text-xs font-semibold transition-all duration-200",
+                "rounded-sm border px-2 py-1 text-[11px] font-medium transition-colors",
                 status === s
-                  ? "border-primary bg-primary text-primary-foreground shadow-[0_6px_16px_-8px] shadow-primary/70"
-                  : "border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground",
+                  ? "border-primary bg-primary text-primary-foreground"
+                  : "border-transparent text-muted-foreground hover:border-border-strong hover:bg-surface hover:text-foreground",
               )}
             >
               {s === "open" ? "Open" : s === "all" ? "All" : STATUS_LABELS[s]}
             </button>
           ))}
-          <button
-            type="button"
-            onClick={() => setMineOnly((v) => !v)}
-            className={cn(
-              "ml-auto rounded-full border px-3 py-1.5 text-xs font-semibold transition-all duration-200",
-              mineOnly
-                ? "border-accent bg-accent text-accent-foreground shadow-[0_6px_16px_-8px] shadow-accent/70"
-                : "border-border bg-card text-muted-foreground hover:border-accent/50 hover:text-foreground",
-            )}
-          >
-            My repairs
-          </button>
         </div>
-      </div>
 
-      <section className="space-y-2.5">
-        {data?.map(({ repair, customer, device, technician }) => (
-          <Link
-            key={repair.id}
-            to="/repairs/$repairId"
-            params={{ repairId: repair.id }}
-            className="rail lift-hover group grid grid-cols-[auto_1fr] items-center gap-4 rounded-2xl border border-border bg-card py-4 pl-5 pr-4 shadow-[var(--shadow-panel)] sm:grid-cols-[auto_1fr_auto]"
-            style={{ "--rail": STATUS_RAIL[repair.status] } as React.CSSProperties}
-          >
-            <DeviceTile
-              type={device.deviceType}
-              className="transition-colors group-hover:border-primary/40 group-hover:text-primary"
-            />
+        <div className="overflow-x-auto">
+          <table className="datagrid">
+            <thead>
+              <tr>
+                <th className="w-[6.5rem]">Ticket</th>
+                <th className="w-[6rem]">Priority</th>
+                <th className="w-[11rem]">Device</th>
+                <th className="hidden w-[8.5rem] md:table-cell">Customer</th>
+                <th className="hidden xl:table-cell">Reported problem</th>
+                <th className="w-[8.5rem]">Assigned to</th>
+                <th className="w-[8.5rem]">Status</th>
+                <th className="w-[6rem] text-right">Opened</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data?.map(({ repair, customer, device, technician }) => (
+                <tr
+                  key={repair.id}
+                  className="cursor-pointer"
+                  onClick={() =>
+                    navigate({
+                      to: "/repairs/$repairId",
+                      params: { repairId: repair.id },
+                    })
+                  }
+                >
+                  <td
+                    className="rail"
+                    style={
+                      { "--rail": STATUS_RAIL[repair.status] } as React.CSSProperties
+                    }
+                  >
+                    <Link
+                      to="/repairs/$repairId"
+                      params={{ repairId: repair.id }}
+                      className="ticket-no text-[12.5px] text-primary hover:underline"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {repair.ticketNumber}
+                    </Link>
+                  </td>
+                  <td>
+                    <PriorityBadge priority={repair.priority} />
+                  </td>
+                  <td>
+                    <span className="flex items-center gap-2">
+                      <DeviceIcon
+                        type={device.deviceType}
+                        className="shrink-0 text-muted-foreground"
+                      />
+                      <span className="block truncate font-medium">
+                        {device.manufacturer} {device.model}
+                      </span>
+                    </span>
+                  </td>
+                  <td className="hidden whitespace-nowrap md:table-cell">
+                    {customer.firstName} {customer.lastName}
+                  </td>
+                  <td className="hidden xl:table-cell">
+                    <span className="block truncate text-muted-foreground">
+                      {repair.reportedProblem}
+                    </span>
+                  </td>
+                  <td>
+                    {technician ? (
+                      <span className="flex items-center gap-1.5 whitespace-nowrap">
+                        <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-secondary text-[9px] font-semibold text-secondary-foreground">
+                          {initials(technician.displayName)}
+                        </span>
+                        <span className="truncate">{technician.displayName}</span>
+                      </span>
+                    ) : (
+                      <span className="text-muted-foreground">Unassigned</span>
+                    )}
+                  </td>
+                  <td>
+                    <StatusBadge status={repair.status} />
+                  </td>
+                  <td className="whitespace-nowrap text-right text-muted-foreground">
+                    <span className="numeral">{shortDate(repair.createdAt)}</span>
+                    <span className="ml-1 text-[11px]">({age(repair.createdAt)})</span>
+                  </td>
+                </tr>
+              ))}
 
-            <div className="min-w-0">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="ticket-no text-xs font-semibold text-muted-foreground">
-                  {repair.ticketNumber}
-                </span>
-                <PriorityBadge priority={repair.priority} />
-                <span className="text-xs text-muted-foreground">
-                  · {daysOnBench(repair.createdAt)} on the bench
-                </span>
-              </div>
-              <p className="mt-1 truncate font-display text-base font-semibold">
-                {device.manufacturer} {device.model}
-              </p>
-              <p className="truncate text-sm text-muted-foreground">
-                {customer.firstName} {customer.lastName} · {repair.reportedProblem}
-              </p>
-            </div>
-
-            <div className="col-span-2 flex items-center gap-3 border-t border-border pt-3 sm:col-span-1 sm:justify-end sm:border-0 sm:pt-0">
-              {technician ? (
-                <span className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <span className="flex size-7 items-center justify-center rounded-full bg-secondary font-display text-[10px] font-bold text-secondary-foreground">
-                    {initials(technician.displayName)}
-                  </span>
-                  <span className="hidden sm:inline">{technician.displayName}</span>
-                </span>
-              ) : (
-                <span className="rounded-full border border-dashed border-border px-2.5 py-1 text-xs font-medium text-muted-foreground">
-                  Unassigned
-                </span>
+              {data?.length === 0 && (
+                <tr>
+                  <td colSpan={8} className="py-12 text-center">
+                    <span className="mx-auto flex size-9 items-center justify-center rounded-sm border border-border bg-surface text-muted-foreground">
+                      <Inbox className="size-4" />
+                    </span>
+                    <p className="mt-2 font-medium">No records found</p>
+                    <p className="text-xs text-muted-foreground">
+                      Adjust the status filter or clear the search.
+                    </p>
+                  </td>
+                </tr>
               )}
-              <StatusBadge status={repair.status} />
-              <ChevronRight className="size-4 shrink-0 text-muted-foreground transition-transform duration-200 group-hover:translate-x-0.5 group-hover:text-foreground" />
-            </div>
-          </Link>
-        ))}
 
-        {data?.length === 0 && (
-          <div className="panel flex flex-col items-center gap-3 px-6 py-16 text-center">
-            <span className="flex size-12 items-center justify-center rounded-2xl bg-surface text-muted-foreground">
-              <Inbox className="size-6" />
+              {isLoading &&
+                [0, 1, 2, 3, 4].map((i) => (
+                  <tr key={i}>
+                    <td colSpan={8}>
+                      <div className="h-4 animate-pulse rounded-sm bg-surface-2" />
+                    </td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="flex items-center justify-between border-t border-border bg-toolbar px-3 py-1.5 text-[11px] text-muted-foreground">
+          <span>
+            Showing {data?.length ?? 0} of {data?.length ?? 0}
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="rounded-sm border border-border bg-card px-1.5 py-0.5 font-medium text-foreground">
+              1
             </span>
-            <p className="font-display text-lg font-semibold">Nothing here</p>
-            <p className="max-w-xs text-sm text-muted-foreground">
-              No repairs match those filters. Try another status, or clear the search.
-            </p>
-          </div>
-        )}
-
-        {isLoading &&
-          [0, 1, 2].map((i) => (
-            <div
-              key={i}
-              className="h-[104px] animate-pulse rounded-2xl border border-border bg-card"
-            />
-          ))}
+            <span>of 1</span>
+          </span>
+        </div>
       </section>
     </div>
   );

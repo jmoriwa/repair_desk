@@ -1,16 +1,20 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import {
+  Bell,
+  ChevronDown,
   ClipboardList,
+  HelpCircle,
   LayoutDashboard,
   LogOut,
+  Menu,
+  Search,
   Users,
   UserCog,
   Wrench,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 
 const NAV = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard, exact: true },
@@ -31,6 +35,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const [navOpen, setNavOpen] = useState(false);
 
   const items = [
     ...NAV,
@@ -40,89 +45,128 @@ export function AppShell({ children }: { children: ReactNode }) {
   ];
 
   return (
-    <div className="workbench min-h-screen lg:flex">
-      <aside className="chrome-deep text-sidebar-foreground lg:sticky lg:top-0 lg:flex lg:h-screen lg:w-[16.5rem] lg:shrink-0 lg:flex-col">
-        <div className="flex items-center gap-3 px-5 py-6">
-          <span className="flex size-10 items-center justify-center rounded-xl bg-sidebar-primary text-sidebar-primary-foreground shadow-[0_8px_20px_-8px] shadow-sidebar-primary/70">
-            <Wrench className="size-5" />
+    <div className="min-h-screen bg-background">
+      {/* Application bar */}
+      <header className="sticky top-0 z-30 flex h-12 items-center gap-2 border-b border-sidebar-border bg-sidebar px-3 text-sidebar-foreground">
+        <button
+          type="button"
+          onClick={() => setNavOpen((v) => !v)}
+          className="flex size-8 items-center justify-center rounded-sm text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground lg:hidden"
+          aria-label="Toggle navigation"
+        >
+          <Menu className="size-4" />
+        </button>
+
+        <Link to="/" className="flex min-w-0 items-center gap-2">
+          <span className="flex size-7 shrink-0 items-center justify-center rounded-sm bg-sidebar-primary text-sidebar-primary-foreground">
+            <Wrench className="size-4" />
           </span>
-          <span className="leading-tight">
-            <span className="block font-display text-lg font-bold tracking-tight">
-              RepairDesk
-            </span>
-            <span className="block text-[11px] text-sidebar-foreground/50">
-              Bench operations
-            </span>
+          <span className="truncate font-display text-sm font-semibold tracking-tight">
+            RepairDesk
           </span>
-        </div>
+          <span className="hidden text-[11px] text-sidebar-foreground/45 sm:inline">
+            | Service Management
+          </span>
+        </Link>
 
-        <p className="eyebrow hidden px-6 pb-2 text-sidebar-foreground/40 lg:block">
-          Workspace
-        </p>
-
-        <nav className="flex gap-1.5 overflow-x-auto px-3 pb-3 lg:flex-col lg:overflow-visible">
-          {items.map((item) => {
-            const active = item.exact
-              ? pathname === item.to
-              : pathname.startsWith(item.to);
-            return (
-              <Link
-                key={item.to}
-                to={item.to}
-                className={cn(
-                  "group relative flex items-center gap-3 whitespace-nowrap rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200",
-                  active
-                    ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-[inset_0_1px_0] shadow-white/5"
-                    : "text-sidebar-foreground/60 hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground",
-                )}
-              >
-                <span
-                  className={cn(
-                    "absolute left-0 top-1/2 h-6 w-[3px] -translate-y-1/2 rounded-full bg-sidebar-primary transition-opacity duration-200",
-                    active ? "opacity-100" : "opacity-0",
-                  )}
-                />
-                <item.icon
-                  className={cn(
-                    "size-4 transition-colors",
-                    active ? "text-sidebar-primary" : "text-sidebar-foreground/50",
-                  )}
-                />
-                {item.label}
-              </Link>
-            );
-          })}
-        </nav>
-
-        <div className="hidden px-4 pb-5 lg:mt-auto lg:block">
-          <div className="rounded-xl border border-sidebar-border/70 bg-sidebar-accent/40 p-3 backdrop-blur">
-            <div className="flex items-center gap-3">
-              <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-sidebar-primary font-display text-xs font-bold text-sidebar-primary-foreground">
-                {initials(user?.displayName ?? "")}
+        <div className="ml-auto flex items-center gap-1">
+          <span className="hidden items-center gap-2 rounded-sm border border-sidebar-border bg-sidebar-accent/50 px-2 py-1 text-xs text-sidebar-foreground/60 md:flex">
+            <Search className="size-3.5" />
+            Search tickets…
+          </span>
+          <button
+            type="button"
+            className="flex size-8 items-center justify-center rounded-sm text-sidebar-foreground/70 hover:bg-sidebar-accent"
+            aria-label="Notifications"
+          >
+            <Bell className="size-4" />
+          </button>
+          <button
+            type="button"
+            className="hidden size-8 items-center justify-center rounded-sm text-sidebar-foreground/70 hover:bg-sidebar-accent sm:flex"
+            aria-label="Help"
+          >
+            <HelpCircle className="size-4" />
+          </button>
+          <div className="ml-1 flex items-center gap-2 border-l border-sidebar-border pl-2">
+            <span className="flex size-7 items-center justify-center rounded-full bg-sidebar-accent text-[11px] font-semibold text-sidebar-accent-foreground">
+              {initials(user?.displayName ?? "")}
+            </span>
+            <span className="hidden leading-tight sm:block">
+              <span className="block text-xs font-semibold">{user?.displayName}</span>
+              <span className="block text-[10px] uppercase tracking-wide text-sidebar-foreground/45">
+                {user?.role}
               </span>
-              <div className="min-w-0">
-                <p className="truncate text-sm font-semibold">{user?.displayName}</p>
-                <p className="text-[11px] uppercase tracking-wide text-sidebar-foreground/50">
-                  {user?.role}
-                </p>
-              </div>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="mt-2.5 w-full justify-start px-2 text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-              onClick={async () => {
-                await signOut();
-                navigate({ to: "/login" });
-              }}
-            >
-              <LogOut className="size-4" /> Sign out
-            </Button>
+            </span>
+            <ChevronDown className="hidden size-3.5 text-sidebar-foreground/45 sm:block" />
           </div>
         </div>
-      </aside>
+      </header>
 
-      <main className="min-w-0 flex-1 px-4 py-6 sm:px-8 sm:py-10">{children}</main>
+      <div className="lg:flex">
+        {/* Module navigation */}
+        <aside
+          className={cn(
+            "border-b border-sidebar-border bg-sidebar text-sidebar-foreground lg:sticky lg:top-12 lg:h-[calc(100vh-3rem)] lg:w-56 lg:shrink-0 lg:border-b-0 lg:border-r",
+            navOpen ? "block" : "hidden lg:block",
+          )}
+        >
+          <div className="flex h-full flex-col">
+            <p className="eyebrow px-3 pb-1.5 pt-3 text-sidebar-foreground/40">
+              Modules
+            </p>
+            <nav className="flex flex-col gap-px px-2 pb-3">
+              {items.map((item) => {
+                const active = item.exact
+                  ? pathname === item.to
+                  : pathname.startsWith(item.to);
+                return (
+                  <Link
+                    key={item.to}
+                    to={item.to}
+                    onClick={() => setNavOpen(false)}
+                    className={cn(
+                      "relative flex items-center gap-2.5 rounded-sm px-2.5 py-2 text-[13px] font-medium transition-colors",
+                      active
+                        ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                        : "text-sidebar-foreground/65 hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground",
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        "absolute inset-y-1 left-0 w-[3px] rounded-r bg-sidebar-primary",
+                        active ? "opacity-100" : "opacity-0",
+                      )}
+                    />
+                    <item.icon
+                      className={cn(
+                        "size-4",
+                        active ? "text-sidebar-primary" : "text-sidebar-foreground/45",
+                      )}
+                    />
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </nav>
+
+            <div className="mt-auto hidden border-t border-sidebar-border p-2 lg:block">
+              <button
+                type="button"
+                className="flex w-full items-center gap-2.5 rounded-sm px-2.5 py-2 text-[13px] font-medium text-sidebar-foreground/60 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                onClick={async () => {
+                  await signOut();
+                  navigate({ to: "/login" });
+                }}
+              >
+                <LogOut className="size-4" /> Sign out
+              </button>
+            </div>
+          </div>
+        </aside>
+
+        <main className="min-w-0 flex-1 p-4 lg:p-6">{children}</main>
+      </div>
     </div>
   );
 }

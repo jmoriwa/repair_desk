@@ -31,8 +31,8 @@ export interface CustomerInput {
   firstName: string;
   lastName: string;
   phone: string;
-  email?: string;
-  notes?: string;
+  email?: string | undefined;
+  notes?: string | undefined;
 }
 
 export interface DeviceInput {
@@ -40,8 +40,8 @@ export interface DeviceInput {
   deviceType: DeviceType;
   manufacturer: string;
   model: string;
-  serialNumber?: string;
-  identifyingNotes?: string;
+  serialNumber?: string | undefined;
+  identifyingNotes?: string | undefined;
 }
 
 export interface RepairInput {
@@ -49,16 +49,16 @@ export interface RepairInput {
   deviceId: string;
   reportedProblem: string;
   priority: Priority;
-  assignedTechnicianId?: string;
-  estimatedCompletion?: string;
-  intake?: Omit<IntakeRecord, "id" | "repairId" | "employeeId" | "createdAt">;
+  assignedTechnicianId?: string | undefined;
+  estimatedCompletion?: string | undefined;
+  intake?: Omit<IntakeRecord, "id" | "repairId" | "employeeId" | "createdAt"> | undefined;
 }
 
 export interface RepairMetaInput {
-  priority?: Priority;
-  estimatedCompletion?: string;
-  customerUpdate?: string;
-  reportedProblem?: string;
+  priority?: Priority | undefined;
+  estimatedCompletion?: string | undefined;
+  customerUpdate?: string | undefined;
+  reportedProblem?: string | undefined;
 }
 
 export interface EmployeeInput {
@@ -111,7 +111,7 @@ export interface RepairDeskApi {
   // Repair details
   addDiagnosis(
     repairId: string,
-    input: { description: string; recommendedRepair: string; estimatedCost?: number },
+    input: { description: string; recommendedRepair: string; estimatedCost?: number | undefined },
   ): Promise<Diagnosis>;
   addNote(
     repairId: string,
@@ -121,10 +121,10 @@ export interface RepairDeskApi {
     repairId: string,
     input: {
       name: string;
-      partNumber?: string;
+      partNumber?: string | undefined;
       quantity: number;
-      unitCost?: number;
-      notes?: string;
+      unitCost?: number | undefined;
+      notes?: string | undefined;
     },
   ): Promise<RepairPart>;
   addAttachment(

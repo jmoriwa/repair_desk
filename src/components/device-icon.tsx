@@ -33,7 +33,7 @@ export function DeviceIcon({
   className?: string;
 }) {
   const Icon = ICONS[type] ?? Wrench;
-  return <Icon className={cn("size-5", className)} />;
+  return <Icon className={cn("size-4", className)} />;
 }
 
 /** Square icon tile used in list rows and detail headers. */
@@ -47,7 +47,7 @@ export function DeviceTile({
   return (
     <span
       className={cn(
-        "flex size-11 shrink-0 items-center justify-center rounded-xl border border-border bg-surface text-muted-foreground",
+        "flex size-7 shrink-0 items-center justify-center rounded-sm border border-border bg-surface text-muted-foreground",
         className,
       )}
     >

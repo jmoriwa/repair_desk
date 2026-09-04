@@ -10,33 +10,141 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as EmployeesRouteImport } from './routes/employees'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as TrackRouteImport } from './routes/track'
+import { Route as CustomersIndexRouteImport } from './routes/customers/index'
+import { Route as CustomersCustomerIdRouteImport } from './routes/customers/$customerId'
+import { Route as RepairsIndexRouteImport } from './routes/repairs/index'
+import { Route as RepairsRepairIdRouteImport } from './routes/repairs/$repairId'
+import { Route as RepairsNewRouteImport } from './routes/repairs/new'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EmployeesRoute = EmployeesRouteImport.update({
+  id: '/employees',
+  path: '/employees',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TrackRoute = TrackRouteImport.update({
+  id: '/track',
+  path: '/track',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CustomersIndexRoute = CustomersIndexRouteImport.update({
+  id: '/customers/',
+  path: '/customers/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CustomersCustomerIdRoute = CustomersCustomerIdRouteImport.update({
+  id: '/customers/$customerId',
+  path: '/customers/$customerId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RepairsIndexRoute = RepairsIndexRouteImport.update({
+  id: '/repairs/',
+  path: '/repairs/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RepairsRepairIdRoute = RepairsRepairIdRouteImport.update({
+  id: '/repairs/$repairId',
+  path: '/repairs/$repairId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RepairsNewRoute = RepairsNewRouteImport.update({
+  id: '/repairs/new',
+  path: '/repairs/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/employees': typeof EmployeesRoute
+  '/login': typeof LoginRoute
+  '/track': typeof TrackRoute
+  '/customers/$customerId': typeof CustomersCustomerIdRoute
+  '/repairs/$repairId': typeof RepairsRepairIdRoute
+  '/repairs/new': typeof RepairsNewRoute
+  '/customers/': typeof CustomersIndexRoute
+  '/repairs/': typeof RepairsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/employees': typeof EmployeesRoute
+  '/login': typeof LoginRoute
+  '/track': typeof TrackRoute
+  '/customers/$customerId': typeof CustomersCustomerIdRoute
+  '/repairs/$repairId': typeof RepairsRepairIdRoute
+  '/repairs/new': typeof RepairsNewRoute
+  '/customers': typeof CustomersIndexRoute
+  '/repairs': typeof RepairsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/employees': typeof EmployeesRoute
+  '/login': typeof LoginRoute
+  '/track': typeof TrackRoute
+  '/customers/$customerId': typeof CustomersCustomerIdRoute
+  '/repairs/$repairId': typeof RepairsRepairIdRoute
+  '/repairs/new': typeof RepairsNewRoute
+  '/customers/': typeof CustomersIndexRoute
+  '/repairs/': typeof RepairsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/employees'
+    | '/login'
+    | '/track'
+    | '/customers/$customerId'
+    | '/repairs/$repairId'
+    | '/repairs/new'
+    | '/customers/'
+    | '/repairs/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/employees'
+    | '/login'
+    | '/track'
+    | '/customers/$customerId'
+    | '/repairs/$repairId'
+    | '/repairs/new'
+    | '/customers'
+    | '/repairs'
+  id:
+    | '__root__'
+    | '/'
+    | '/employees'
+    | '/login'
+    | '/track'
+    | '/customers/$customerId'
+    | '/repairs/$repairId'
+    | '/repairs/new'
+    | '/customers/'
+    | '/repairs/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  EmployeesRoute: typeof EmployeesRoute
+  LoginRoute: typeof LoginRoute
+  TrackRoute: typeof TrackRoute
+  CustomersCustomerIdRoute: typeof CustomersCustomerIdRoute
+  RepairsRepairIdRoute: typeof RepairsRepairIdRoute
+  RepairsNewRoute: typeof RepairsNewRoute
+  CustomersIndexRoute: typeof CustomersIndexRoute
+  RepairsIndexRoute: typeof RepairsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +156,75 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/employees': {
+      id: '/employees'
+      path: '/employees'
+      fullPath: '/employees'
+      preLoaderRoute: typeof EmployeesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/track': {
+      id: '/track'
+      path: '/track'
+      fullPath: '/track'
+      preLoaderRoute: typeof TrackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/customers/': {
+      id: '/customers/'
+      path: '/customers'
+      fullPath: '/customers/'
+      preLoaderRoute: typeof CustomersIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/customers/$customerId': {
+      id: '/customers/$customerId'
+      path: '/customers/$customerId'
+      fullPath: '/customers/$customerId'
+      preLoaderRoute: typeof CustomersCustomerIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/repairs/': {
+      id: '/repairs/'
+      path: '/repairs'
+      fullPath: '/repairs/'
+      preLoaderRoute: typeof RepairsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/repairs/$repairId': {
+      id: '/repairs/$repairId'
+      path: '/repairs/$repairId'
+      fullPath: '/repairs/$repairId'
+      preLoaderRoute: typeof RepairsRepairIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/repairs/new': {
+      id: '/repairs/new'
+      path: '/repairs/new'
+      fullPath: '/repairs/new'
+      preLoaderRoute: typeof RepairsNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  EmployeesRoute: EmployeesRoute,
+  LoginRoute: LoginRoute,
+  TrackRoute: TrackRoute,
+  CustomersCustomerIdRoute: CustomersCustomerIdRoute,
+  RepairsRepairIdRoute: RepairsRepairIdRoute,
+  RepairsNewRoute: RepairsNewRoute,
+  CustomersIndexRoute: CustomersIndexRoute,
+  RepairsIndexRoute: RepairsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -65,11 +65,16 @@
   --color-success-foreground: var(--success-foreground);
   --color-info: var(--info);
   --color-info-foreground: var(--info-foreground);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
   --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
   --shadow-panel: 0 1px 2px oklch(0.25 0.03 250 / 0.06), 0 8px 24px -12px oklch(0.25 0.03 250 / 0.18);
   --shadow-lift: 0 2px 4px oklch(0.25 0.03 250 / 0.08), 0 16px 40px -16px oklch(0.25 0.03 250 / 0.28);
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
 }
+
 
 :root {
   --radius: 0.7rem;

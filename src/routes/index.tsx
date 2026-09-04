@@ -130,12 +130,12 @@ function Dashboard() {
             <table className="datagrid">
               <thead>
                 <tr>
-                  <th className="w-[6.5rem]">Ticket</th>
-                  <th className="w-[4.5rem]">Priority</th>
-                  <th className="w-[13rem]">Device</th>
-                  <th className="hidden w-[10rem] sm:table-cell">Customer</th>
-                  <th className="hidden w-[9.5rem] md:table-cell">Assigned to</th>
-                  <th className="w-[9rem]">Status</th>
+                  <th className="w-[5.5rem]">Ticket</th>
+                  <th className="w-[5.5rem]">Priority</th>
+                  <th>Device</th>
+                  <th className="hidden w-[8.5rem] xl:table-cell">Customer</th>
+                  <th className="hidden w-[8.5rem] md:table-cell">Assigned to</th>
+                  <th className="w-[8.5rem]">Status</th>
                 </tr>
               </thead>
               <tbody>
@@ -169,7 +169,7 @@ function Dashboard() {
                         </span>
                       </span>
                     </td>
-                    <td className="hidden whitespace-nowrap sm:table-cell">
+                    <td className="hidden whitespace-nowrap xl:table-cell">
                       {customer.firstName} {customer.lastName}
                     </td>
                     <td className="hidden md:table-cell">

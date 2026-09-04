@@ -1,10 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Search } from "lucide-react";
+import { Plus, Search } from "lucide-react";
+import { toast } from "sonner";
 import { RequireAuth } from "@/components/require-auth";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { api } from "@/services";
+import { Label } from "@/components/ui/label";
+import { api, ApiError } from "@/services";
 
 export const Route = createFileRoute("/customers/")({
   head: () => ({
@@ -31,10 +34,36 @@ export const Route = createFileRoute("/customers/")({
 });
 
 function Customers() {
+  const queryClient = useQueryClient();
   const [query, setQuery] = useState("");
+  const [adding, setAdding] = useState(false);
+  const [draft, setDraft] = useState({
+    firstName: "",
+    lastName: "",
+    phone: "",
+    email: "",
+  });
   const { data } = useQuery({
     queryKey: ["customers", query],
     queryFn: () => api.listCustomers(query),
+  });
+
+  const create = useMutation({
+    mutationFn: () =>
+      api.createCustomer({
+        firstName: draft.firstName,
+        lastName: draft.lastName,
+        phone: draft.phone,
+        email: draft.email || undefined,
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["customers"] });
+      setAdding(false);
+      setDraft({ firstName: "", lastName: "", phone: "", email: "" });
+      toast.success("Customer added");
+    },
+    onError: (err) =>
+      toast.error(err instanceof ApiError ? err.message : "Couldn't save that."),
   });
 
   return (

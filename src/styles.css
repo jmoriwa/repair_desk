@@ -65,11 +65,16 @@
   --color-success-foreground: var(--success-foreground);
   --color-info: var(--info);
   --color-info-foreground: var(--info-foreground);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
   --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
   --shadow-panel: 0 1px 2px oklch(0.25 0.03 250 / 0.06), 0 8px 24px -12px oklch(0.25 0.03 250 / 0.18);
   --shadow-lift: 0 2px 4px oklch(0.25 0.03 250 / 0.08), 0 16px 40px -16px oklch(0.25 0.03 250 / 0.28);
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
 }
+
 
 :root {
   --radius: 0.7rem;
@@ -111,7 +116,10 @@
   --sidebar-accent-foreground: oklch(0.97 0.008 240);
   --sidebar-border: oklch(0.32 0.035 250);
   --sidebar-ring: oklch(0.6 0.09 235);
+  --surface: oklch(0.972 0.008 92);
+  --surface-2: oklch(0.955 0.012 90);
 }
+
 
 .dark {
   --warning: oklch(0.78 0.14 78);
@@ -152,6 +160,8 @@
   --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.551 0.027 264.364);
+  --surface: oklch(0.18 0.035 262);
+  --surface-2: oklch(0.23 0.038 263);
 }
 
 @layer base {
@@ -168,9 +178,20 @@
 
   h1, h2, h3, h4, .font-display {
     font-family: var(--font-display);
-    letter-spacing: -0.015em;
+    letter-spacing: -0.022em;
+  }
+
+  h1 {
+    letter-spacing: -0.032em;
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--color-accent) 45%, transparent);
+    color: var(--color-foreground);
   }
 }
+
+/* --- Surfaces ------------------------------------------------------- */
 
 @utility panel {
   background-color: var(--color-card);
@@ -179,9 +200,141 @@
   box-shadow: var(--shadow-panel);
 }
 
+/* A panel with a top hairline highlight and deeper elevation. */
+@utility panel-raised {
+  position: relative;
+  background:
+    linear-gradient(
+      to bottom,
+      color-mix(in oklab, var(--color-card) 100%, transparent),
+      color-mix(in oklab, var(--color-surface) 70%, var(--color-card))
+    );
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-lift);
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 1px;
+    border-radius: inherit;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      color-mix(in oklab, var(--color-accent) 55%, transparent),
+      transparent
+    );
+  }
+}
+
+/* Workspace backdrop: warm paper with a faint engineering grid. */
+@utility workbench {
+  background-color: var(--color-background);
+  background-image:
+    radial-gradient(
+      120% 90% at 92% -10%,
+      color-mix(in oklab, var(--color-accent) 12%, transparent),
+      transparent 60%
+    ),
+    radial-gradient(
+      90% 70% at -10% 0%,
+      color-mix(in oklab, var(--color-primary) 10%, transparent),
+      transparent 55%
+    ),
+    linear-gradient(color-mix(in oklab, var(--color-primary) 3%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in oklab, var(--color-primary) 3%, transparent) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 34px 34px, 34px 34px;
+}
+
 @utility grid-paper {
   background-image:
     linear-gradient(oklch(0.42 0.09 235 / 0.05) 1px, transparent 1px),
     linear-gradient(90deg, oklch(0.42 0.09 235 / 0.05) 1px, transparent 1px);
   background-size: 28px 28px;
 }
+
+/* Deep navy chrome used by the sidebar and marketing panel. */
+@utility chrome-deep {
+  background:
+    radial-gradient(
+      80% 60% at 20% 0%,
+      color-mix(in oklab, var(--color-sidebar-primary) 16%, transparent),
+      transparent 70%
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in oklab, var(--color-sidebar) 100%, transparent),
+      color-mix(in oklab, var(--color-sidebar) 88%, black)
+    );
+}
+
+/* --- Type ----------------------------------------------------------- */
+
+@utility eyebrow {
+  font-family: var(--font-display);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-muted-foreground);
+}
+
+@utility ticket-no {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+}
+
+@utility numeral {
+  font-family: var(--font-display);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.04em;
+}
+
+/* --- Interaction ---------------------------------------------------- */
+
+@utility lift-hover {
+  transition:
+    transform 220ms var(--ease-out-soft),
+    box-shadow 220ms var(--ease-out-soft),
+    background-color 220ms var(--ease-out-soft);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lift);
+  }
+}
+
+/* Left status rail on list rows; colour comes from --rail. */
+@utility rail {
+  position: relative;
+
+  &::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.5rem;
+    bottom: 0.5rem;
+    width: 3px;
+    border-radius: 999px;
+    background: var(--rail, var(--color-border));
+    opacity: 0.9;
+    transition: width 220ms var(--ease-out-soft);
+  }
+
+  &:hover::before {
+    width: 5px;
+  }
+}
+
+@utility hairline-x {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in oklab, var(--color-border) 100%, transparent),
+    transparent
+  );
+  height: 1px;
+}
+

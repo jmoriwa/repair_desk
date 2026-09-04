@@ -23,7 +23,6 @@ export interface MockDb {
   attachments: Attachment[];
   activity: ActivityEvent[];
   sessionUserId: string | null;
-  ticketСounterSeed?: number;
 }
 
 export const STORAGE_KEY = "repairdesk.mockdb.v1";

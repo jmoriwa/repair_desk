@@ -133,7 +133,7 @@ function Dashboard() {
                   <th className="w-[5.5rem]">Ticket</th>
                   <th className="w-[5.5rem]">Priority</th>
                   <th>Device</th>
-                  <th className="hidden w-[8.5rem] xl:table-cell">Customer</th>
+                  <th className="hidden w-[8.5rem] 2xl:table-cell">Customer</th>
                   <th className="hidden w-[8.5rem] md:table-cell">Assigned to</th>
                   <th className="w-[8.5rem]">Status</th>
                 </tr>
@@ -169,7 +169,7 @@ function Dashboard() {
                         </span>
                       </span>
                     </td>
-                    <td className="hidden whitespace-nowrap xl:table-cell">
+                    <td className="hidden whitespace-nowrap 2xl:table-cell">
                       {customer.firstName} {customer.lastName}
                     </td>
                     <td className="hidden md:table-cell">

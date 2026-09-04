@@ -81,6 +81,9 @@ function Customers() {
           </span>
         </div>
         <div className="toolbar">
+          <Button size="sm" className="h-8" onClick={() => setAdding((v) => !v)}>
+            <Plus className="size-3.5" /> New customer
+          </Button>
           <div className="relative ml-auto w-full max-w-sm">
             <Search className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
             <Input
@@ -92,6 +95,65 @@ function Customers() {
             />
           </div>
         </div>
+        {adding && (
+          <form
+            className="grid gap-4 border-b border-border px-5 py-4 sm:grid-cols-2 lg:grid-cols-4"
+            onSubmit={(e) => {
+              e.preventDefault();
+              create.mutate();
+            }}
+          >
+            <div className="space-y-1.5">
+              <Label htmlFor="nc-f">First name</Label>
+              <Input
+                id="nc-f"
+                required
+                value={draft.firstName}
+                onChange={(e) => setDraft({ ...draft, firstName: e.target.value })}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="nc-l">Last name</Label>
+              <Input
+                id="nc-l"
+                required
+                value={draft.lastName}
+                onChange={(e) => setDraft({ ...draft, lastName: e.target.value })}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="nc-p">Phone</Label>
+              <Input
+                id="nc-p"
+                required
+                value={draft.phone}
+                onChange={(e) => setDraft({ ...draft, phone: e.target.value })}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="nc-e">Email (optional)</Label>
+              <Input
+                id="nc-e"
+                type="email"
+                value={draft.email}
+                onChange={(e) => setDraft({ ...draft, email: e.target.value })}
+              />
+            </div>
+            <div className="flex gap-3 sm:col-span-2 lg:col-span-4">
+              <Button type="submit" size="sm" disabled={create.isPending}>
+                Save customer
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() => setAdding(false)}
+              >
+                Cancel
+              </Button>
+            </div>
+          </form>
+        )}
         <div className="overflow-x-auto">
           <table className="datagrid">
             <thead>
